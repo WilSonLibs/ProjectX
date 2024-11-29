@@ -6,9 +6,9 @@ return(<div className='w-full absolute text-white z-10'>
         <Link className='font-bold text-3xl' href="/">Home</Link>
         <div className='space-x-4 text-xl'>
 
-        <Link href="/performance">Performance</Link>
-      <Link href="/scale">Scale</Link>
-      <Link href="/reliability">Reliability</Link>
+        <Link href="/performance">Savings</Link>
+      <Link href="/scale">Withdraw</Link>
+      <Link href="/reliability">Archives</Link>
         </div>
       </nav>
         </div>);
