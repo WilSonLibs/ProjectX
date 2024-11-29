@@ -4,9 +4,10 @@ const mysql = require('mysql2');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-
 const app = express();
 const port = 5000;
+const cors = require('cors');
+app.use(cors());  // This enables CORS for all routes
 
 app.use(express.json());
 
