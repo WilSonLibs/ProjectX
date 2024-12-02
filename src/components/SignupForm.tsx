@@ -4,20 +4,37 @@ import { useState } from "react";
 
 export default function SignupForm() {
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false); // New state for loading
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch("http://localhost:5000/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, password }),
-    });
-    const data = await res.json();
-    setMessage(data.message || data.error);
+    setLoading(true); // Start loading
+
+    try {
+      const res = await fetch("http://localhost:5000/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
+
+      setMessage(data.message);
+      alert(data.message);
+    } catch (err: any) {
+      setMessage(err.message);
+    } finally {
+      setLoading(false); // Stop loading
+    }
   };
 
   return (
@@ -33,6 +50,14 @@ export default function SignupForm() {
           required
         />
         <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="block w-full p-2 mb-3 border rounded"
+          required
+        />
+        <input
           type="password"
           placeholder="Password"
           value={password}
@@ -42,9 +67,16 @@ export default function SignupForm() {
         />
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded"
+          className={`w-full text-white p-2 rounded transition-all ${
+            loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-green-500"
+          }`}
+          disabled={loading} // Disable button when loading
         >
-          Register
+          {loading ? (
+            <div className="spinner-border animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-blue-600 rounded-full"></div>
+          ) : (
+            "Register"
+          )}
         </button>
       </form>
       {message && <p className="mt-2 text-sm text-gray-700">{message}</p>}

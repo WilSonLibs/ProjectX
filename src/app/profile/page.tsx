@@ -3,36 +3,44 @@
 import React, { useState, useEffect } from 'react';
 
 const ProfilePage = () => {
+    const [token, setToken] = useState<string | null>(null); // Allow `token` to be either a string or null
     const [userInfo, setUserInfo] = useState({ username: '', email: '' });
     const [newUsername, setNewUsername] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [mobileMoneyAccount, setMobileMoneyAccount] = useState('');
     const [message, setMessage] = useState('');
-    const token = localStorage.getItem('token');
 
     useEffect(() => {
-        // Fetch user info from backend when the component is mounted
-        fetchUserInfo();
+        if (typeof window !== 'undefined') {
+            const storedToken = localStorage.getItem('token');
+            setToken(storedToken); // Now this works because `token` can be null
+        }
     }, []);
 
     const fetchUserInfo = async () => {
+        if (!token) return; // Ensure token is available
         const response = await fetch('http://localhost:5000/profile', {
             headers: {
-                'Authorization': `Bearer ${token}`,
+                Authorization: `Bearer ${token}`,
             },
         });
         const data = await response.json();
         setUserInfo(data.user);
     };
 
-    const handleUsernameChange = async (e) => {
+    useEffect(() => {
+        fetchUserInfo();
+    }, [token]);
+
+    const handleUsernameChange = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!token) return;
 
         const response = await fetch('http://localhost:5000/profile/username', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
+                Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({ username: newUsername }),
         });
@@ -41,14 +49,15 @@ const ProfilePage = () => {
         setMessage(result.message);
     };
 
-    const handlePasswordChange = async (e) => {
+    const handlePasswordChange = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!token) return;
 
         const response = await fetch('http://localhost:5000/profile/password', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
+                Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({ password: newPassword }),
         });
@@ -57,14 +66,15 @@ const ProfilePage = () => {
         setMessage(result.message);
     };
 
-    const handleMobileMoneyLink = async (e) => {
+    const handleMobileMoneyLink = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!token) return;
 
         const response = await fetch('http://localhost:5000/profile/mobile-money', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
+                Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({ mobileMoneyAccount }),
         });
@@ -75,12 +85,12 @@ const ProfilePage = () => {
 
     const handleLogout = () => {
         localStorage.removeItem('token');
+        setToken(null); // Clear the token in state
         window.location.href = '/login';
     };
 
     return (
-        <div className="container mx-auto p-6 "> {/* Add margin-top to move profile content below header */}
-            
+        <div className="container mx-auto p-6">
             <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
                 <div className="mb-6">
                     <h2 className="text-2xl font-medium">Username: {userInfo.username}</h2>

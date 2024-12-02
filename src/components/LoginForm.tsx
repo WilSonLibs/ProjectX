@@ -1,23 +1,48 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const res = await fetch("http://localhost:5000/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, password }),
-    });
-    const data = await res.json();
-    setMessage(data.token ? "Login successful!" : data.error);
+    setLoading(true);
+
+    try {
+      const res = await fetch("http://localhost:5000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Login failed");
+      }
+
+      setMessage(data.message);
+
+      if (data.token) {
+        // Save the token (localStorage or cookie-based storage)
+        localStorage.setItem("authToken", data.token);
+
+        // Redirect to the homepage
+        router.push("/");
+      }
+    } catch (err) {
+      setMessage(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -42,12 +67,27 @@ export default function LoginForm() {
         />
         <button
           type="submit"
-          className="w-full bg-green-500 text-white p-2 rounded"
+          className={`w-full text-white p-2 rounded transition-all ${
+            loading ? "bg-gray-400 cursor-not-allowed" : "bg-green-500 hover:bg-green-600"
+          }`}
+          disabled={loading}
         >
-          Login
+          {loading ? (
+            <div className="spinner-border animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full"></div>
+          ) : (
+            "Login"
+          )}
         </button>
       </form>
-      {message && <p className="mt-2 text-sm text-gray-700">{message}</p>}
+      {message && (
+        <p
+          className={`mt-2 text-sm ${
+            message.includes("successful") ? "text-green-600" : "text-red-600"
+          }`}
+        >
+          {message}
+        </p>
+      )}
     </div>
   );
 }
