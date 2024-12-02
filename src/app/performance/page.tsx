@@ -39,8 +39,7 @@ export default function PerformancePage() {
     <div className="relative h-screen">
       {/* Background Image */}
       <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
+        className="absolute inset-0 bg-cover bg-center"        style={{
           backgroundImage: `url(${performanceImg.src})`,
           filter: 'blur(2px)',
         }}

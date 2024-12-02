@@ -3,6 +3,6 @@ import Hero from '@/components/hero';
 export default function Home() {
   return  ( 
      
-    <Hero imgData={homeImg} imgAlt='car factory' title='X10D INNOVATIONS'/>
+    <Hero imgData={homeImg} imgAlt='car factory' title='MICROSAVE CUZ'/>
   );
 }
